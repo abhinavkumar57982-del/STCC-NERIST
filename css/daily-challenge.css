@@ -1,0 +1,511 @@
+/* ===== DAILY CHALLENGE ===== */
+.daily-challenge-section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 80px 0 60px;
+    background: var(--bg-dark);
+    overflow: hidden;
+}
+
+/* Challenge Header */
+.challenge-header {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 40px;
+}
+
+.challenge-breadcrumb {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.challenge-breadcrumb a {
+    color: var(--emerald-light);
+    text-decoration: none;
+}
+
+.challenge-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.challenge-breadcrumb span {
+    margin: 0 8px;
+}
+
+.challenge-title-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.challenge-main-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.challenge-main-title i {
+    color: var(--emerald);
+}
+
+.challenge-day {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--emerald-light);
+    background: rgba(0, 208, 132, 0.08);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 208, 132, 0.12);
+}
+
+/* Challenge Layout */
+.challenge-layout {
+    display: grid;
+    grid-template-columns: 45% 55%;
+    gap: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== PROBLEM PANEL ===== */
+.challenge-problem {
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 28px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.challenge-problem::-webkit-scrollbar {
+    width: 4px;
+}
+
+.challenge-problem::-webkit-scrollbar-thumb {
+    background: var(--emerald);
+    border-radius: 2px;
+}
+
+.problem-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.problem-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+}
+
+.problem-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.difficulty-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.difficulty-badge.easy {
+    background: rgba(0, 208, 132, 0.12);
+    color: var(--emerald-light);
+}
+
+.difficulty-badge.medium {
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
+}
+
+.difficulty-badge.hard {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+
+.points-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+    background: rgba(0, 208, 132, 0.08);
+    color: var(--emerald-light);
+}
+
+.points-badge i {
+    margin-right: 4px;
+}
+
+.problem-body {
+    color: var(--text-muted);
+}
+
+.problem-description {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    color: var(--text-light);
+}
+
+.problem-section {
+    margin-bottom: 16px;
+}
+
+.problem-section h4 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.problem-section p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+}
+
+.problem-section pre {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Problem Status */
+.problem-status {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-muted);
+}
+
+.status-indicator.solved .status-dot {
+    background: var(--emerald);
+}
+
+.status-indicator.solved .status-text {
+    color: var(--emerald-light);
+}
+
+.status-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* ===== EDITOR PANEL ===== */
+.challenge-editor {
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.language-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.language-selector label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.language-selector select {
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.language-selector select:focus {
+    border-color: var(--emerald);
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.editor-container {
+    position: relative;
+    flex: 1;
+    min-height: 300px;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.editor-container .CodeMirror {
+    height: 100%;
+    min-height: 300px;
+    background: rgba(0, 0, 0, 0.3);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.editor-container .CodeMirror-gutters {
+    background: rgba(0, 0, 0, 0.2);
+    border-right: 1px solid var(--glass-border);
+}
+
+/* ===== OUTPUT PANEL ===== */
+.editor-output {
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    min-height: 120px;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.output-header span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-clear-output {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 6px;
+    font-size: 0.8rem;
+    transition: var(--transition);
+}
+
+.btn-clear-output:hover {
+    color: var(--white);
+}
+
+.output-body {
+    flex: 1;
+    padding: 12px 14px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.6;
+}
+
+.output-body .output-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.output-body .output-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.output-body.success {
+    color: var(--emerald-light);
+}
+
+.output-body.error {
+    color: #ef4444;
+}
+
+.output-body.warning {
+    color: #fbbf24;
+}
+
+/* ===== EDITOR FOOTER ===== */
+.editor-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--glass-border);
+    flex-wrap: wrap;
+}
+
+.editor-footer .btn {
+    font-size: 0.8rem;
+    padding: 8px 20px;
+}
+
+.editor-status {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.editor-status.success {
+    color: var(--emerald-light);
+}
+
+.editor-status.error {
+    color: #ef4444;
+}
+
+.editor-status.loading {
+    color: #fbbf24;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .challenge-layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .challenge-problem {
+        max-height: 60vh;
+    }
+
+    .challenge-editor {
+        min-height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .challenge-title-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .challenge-main-title {
+        font-size: 1.5rem;
+    }
+
+    .challenge-problem {
+        padding: 20px;
+        max-height: 50vh;
+    }
+
+    .challenge-editor {
+        padding: 16px;
+        min-height: 450px;
+    }
+
+    .editor-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .editor-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .editor-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .editor-status {
+        margin-left: 0;
+        text-align: center;
+    }
+
+    .editor-container .CodeMirror {
+        min-height: 200px;
+    }
+
+    .editor-output {
+        min-height: 100px;
+        max-height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .challenge-main-title {
+        font-size: 1.2rem;
+    }
+
+    .problem-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .challenge-problem {
+        padding: 16px;
+        max-height: 40vh;
+    }
+
+    .challenge-editor {
+        padding: 12px;
+        min-height: 400px;
+    }
+
+    .editor-container .CodeMirror {
+        min-height: 150px;
+    }
+}

@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Challenge · STCC</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/particles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        .test-container {
+            padding: 100px 40px 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .test-header h1 {
+            color: var(--white);
+            font-size: 2rem;
+        }
+        .test-header h1 i {
+            color: #fbbf24;
+        }
+        .test-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 24px 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(12px);
+        }
+        .test-card h2 {
+            color: var(--white);
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-card h2 i {
+            color: var(--emerald);
+        }
+        .test-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .test-input {
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 0.9rem;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            flex: 1;
+            min-width: 150px;
+        }
+        .test-input:focus {
+            border-color: var(--emerald);
+            box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.06);
+        }
+        .test-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+        .btn-test {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn-test:hover {
+            transform: translateY(-2px);
+        }
+        .btn-test.primary {
+            background: var(--emerald);
+            color: var(--bg-dark);
+        }
+        .btn-test.primary:hover {
+            box-shadow: 0 4px 20px rgba(0, 208, 132, 0.3);
+        }
+        .btn-test.danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-test.danger:hover {
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+        .btn-test.warning {
+            background: #fbbf24;
+            color: #000;
+        }
+        .btn-test.warning:hover {
+            box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
+        }
+        .btn-test.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+            border: 1px solid var(--glass-border);
+        }
+        .btn-test.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .btn-test.info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        .btn-test.info:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        .btn-test:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .challenge-preview {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 12px;
+            color: var(--text-light);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+            line-height: 1.8;
+            border: 1px solid var(--glass-border);
+        }
+        .challenge-preview .label {
+            color: #8A9B9A;
+        }
+        .challenge-preview .value {
+            color: #6EE7B7;
+        }
+        .challenge-preview .warning-text {
+            color: #fbbf24;
+        }
+        .challenge-preview .error-text {
+            color: #ef4444;
+        }
+        .challenge-preview .success-text {
+            color: #6EE7B7;
+        }
+        .challenge-preview .info-text {
+            color: #60a5fa;
+        }
+        .challenge-preview .divider {
+            color: rgba(255,255,255,0.1);
+        }
+        .loading-spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .status-badge.active {
+            background: rgba(0, 208, 132, 0.12);
+            color: var(--emerald-light);
+        }
+        .status-badge.inactive {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+        }
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .quick-links a {
+            text-decoration: none;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 99999;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: rgba(0, 208, 132, 0.9);
+            color: #fff;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            font-family: 'Inter', sans-serif;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: rgba(239, 68, 68, 0.9);
+        }
+        .user-info {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .user-info strong {
+            color: var(--white);
+        }
+
+        /* Challenge cards in list */
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .challenge-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+        .challenge-grid::-webkit-scrollbar-thumb {
+            background: var(--emerald);
+            border-radius: 2px;
+        }
+        .challenge-card-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .challenge-card-item:hover {
+            border-color: var(--emerald);
+            transform: translateX(4px);
+            background: rgba(0, 208, 132, 0.04);
+        }
+        .challenge-card-item .day-badge {
+            background: rgba(0, 208, 132, 0.1);
+            color: var(--emerald-light);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: center;
+        }
+        .challenge-card-item .title-text {
+            color: var(--white);
+            flex: 1;
+            margin: 0 12px;
+            font-size: 0.9rem;
+        }
+        .challenge-card-item .date-text {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            margin-right: 8px;
+        }
+        .challenge-card-item .load-btn-small {
+            padding: 4px 12px;
+            border-radius: 4px;
+            border: none;
+            background: var(--emerald);
+            color: var(--bg-dark);
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .challenge-card-item .load-btn-small:hover {
+            transform: scale(1.05);
+        }
+        .challenge-card-item .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-dot.active {
+            background: var(--emerald);
+        }
+        .status-dot.inactive {
+            background: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .test-container {
+                padding: 80px 20px 40px;
+            }
+            .test-card {
+                padding: 18px 20px;
+            }
+            .test-row {
+                flex-direction: column;
+            }
+            .test-input {
+                width: 100%;
+                min-width: unset;
+            }
+            .btn-test {
+                width: 100%;
+                justify-content: center;
+            }
+            .test-header h1 {
+                font-size: 1.5rem;
+            }
+            .challenge-grid {
+                grid-template-columns: 1fr;
+            }
+            .challenge-card-item {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .challenge-card-item .title-text {
+                width: 100%;
+                margin: 4px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <header class="navbar" id="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-brand">
+                <img src="cropped_circle_image (2).png" alt="STCC Logo" class="brand-logo-img" />
+                <span class="brand-logo">STCC</span>
+            </div>
+            <nav class="navbar-links" id="navbarLinks">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="Events.html">Events</a></li>
+                    <li><a href="leaderboard.html">Leaderboard</a></li>
+                    <li><a href="E-body.html">E-Body</a></li>
+                    <li><a href="Gallery.html">Gallery</a></li>
+                    <li><a href="ContactUs.html">Contact</a></li>
+                    <li id="authNavItem">
+                        <a href="#" class="login-link" id="authLink">Login</a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== TOAST ===== -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ===== PARTICLES ===== -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="test-container">
+        <div class="test-header">
+            <h1><i class="fas fa-flask"></i> Test Challenge Viewer</h1>
+            <div class="user-info" id="userInfo">
+                <i class="fas fa-user-circle"></i>
+                <span id="userName">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Auth Status -->
+        <div class="test-card">
+            <h2><i class="fas fa-shield-alt"></i> Authentication</h2>
+            <div id="authStatusText">Checking...</div>
+        </div>
+
+        <!-- Load by Date -->
+        <div class="test-card">
+            <h2><i class="fas fa-calendar-alt"></i> Load by Date</h2>
+            <div class="test-row">
+                <input type="date" id="testDate" class="test-input" />
+                <button class="btn-test primary" onclick="loadChallengeByDate()">
+                    <i class="fas fa-search"></i> Load
+                </button>
+                <button class="btn-test warning" onclick="loadToday()">
+                    <i class="fas fa-calendar-day"></i> Today
+                </button>
+                <button class="btn-test info" onclick="loadTomorrow()">
+                    <i class="fas fa-calendar-plus"></i> Tomorrow
+                </button>
+            </div>
+        </div>
+
+        <!-- Load by Day Number -->
+        <div class="test-card">
+            <h2><i class="fas fa-hashtag"></i> Load by Day Number</h2>
+            <div class="test-row">
+                <input type="number" id="testDay" placeholder="Enter day number (1, 2, 3...)" class="test-input" min="1" />
+                <button class="btn-test primary" onclick="loadChallengeByDay()">
+                    <i class="fas fa-search"></i> Load
+                </button>
+            </div>
+        </div>
+
+        <!-- All Challenges - Uses Direct DB Fetch via API -->
+        <div class="test-card">
+            <h2><i class="fas fa-list"></i> All Challenges</h2>
+            <div style="margin-bottom: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-test primary" onclick="loadAllChallenges()">
+                    <i class="fas fa-sync-alt"></i> Load All Challenges
+                </button>
+                <span style="color: var(--text-muted); font-size: 0.8rem; align-self: center;">
+                    Click a challenge to load it
+                </span>
+            </div>
+            <div id="challengeList" class="challenge-grid">
+                <span style="color: var(--text-muted); padding: 20px; text-align: center; width: 100%;">
+                    <i class="fas fa-arrow-up"></i> Click "Load All Challenges" to see available challenges
+                </span>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div class="test-card" id="resultCard">
+            <h2><i class="fas fa-code"></i> Challenge Details</h2>
+            <div id="result" class="challenge-preview">
+                <span style="color: var(--text-muted);">Select a challenge to view details...</span>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="test-card">
+            <h2><i class="fas fa-link"></i> Quick Links</h2>
+            <div class="quick-links">
+                <a href="daily-challenge.html" class="btn-test primary">
+                    <i class="fas fa-code"></i> Daily Challenge
+                </a>
+                <a href="leaderboard.html" class="btn-test warning">
+                    <i class="fas fa-trophy"></i> Leaderboard
+                </a>
+                <a href="index.html" class="btn-test secondary">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <button class="btn-test danger" onclick="clearCache()">
+                    <i class="fas fa-trash"></i> Clear Cache
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="js/config.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        // ===== MAIN SCRIPT - NO CODE CHANGES REQUIRED =====
+        (function() {
+            'use strict';
+
+            const API_URL = window.API_URL || 'http://localhost:5000/api';
+
+            // DOM Elements
+            const resultDiv = document.getElementById('result');
+            const toast = document.getElementById('toast');
+            const userNameEl = document.getElementById('userName');
+            const authStatusText = document.getElementById('authStatusText');
+            const challengeListDiv = document.getElementById('challengeList');
+
+            // ===== Toast =====
+            function showToast(msg, isError = false) {
+                toast.textContent = msg;
+                toast.className = 'toast' + (isError ? ' error' : '');
+                toast.classList.add('show');
+                clearTimeout(toast._timeout);
+                toast._timeout = setTimeout(() => toast.classList.remove('show'), 4000);
+            }
+
+            // ===== Check Auth =====
+            function checkAuth() {
+                const token = localStorage.getItem('stcc_token');
+                const userData = localStorage.getItem('stcc_user');
+                
+                if (token && userData) {
+                    try {
+                        const user = JSON.parse(userData);
+                        userNameEl.textContent = user.name || 'User';
+                        authStatusText.innerHTML = `
+                            <span class="status-badge active">✅ Authenticated</span>
+                            <span style="color: var(--text-muted); margin-left: 12px;">
+                                Logged in as <strong style="color: var(--white);">${user.name}</strong>
+                                (${user.registrationNo || 'No reg no'})
+                            </span>
+                        `;
+                        return true;
+                    } catch (e) {
+                        authStatusText.innerHTML = `<span class="status-badge inactive">❌ Invalid session</span>`;
+                        return false;
+                    }
+                } else {
+                    userNameEl.textContent = 'Not logged in';
+                    authStatusText.innerHTML = `
+                        <span class="status-badge inactive">❌ Not logged in</span>
+                        <span style="color: var(--text-muted); margin-left: 12px;">
+                            <a href="login.html" style="color: var(--emerald-light);">Login</a> to test challenges
+                        </span>
+                    `;
+                    return false;
+                }
+            }
+
+            // ===== Load All Challenges =====
+            // Uses the existing /today endpoint with day parameter to find all challenges
+            window.loadAllChallenges = async function() {
+                challengeListDiv.innerHTML = '<span style="color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading challenges...</span>';
+                
+                try {
+                    const token = localStorage.getItem('stcc_token');
+                    if (!token) {
+                        challengeListDiv.innerHTML = '<span class="error-text">❌ Please login first</span>';
+                        return;
+                    }
+
+                    // Try day numbers 1-30 to find all challenges
+                    // This uses the existing API without any modifications
+                    const challenges = [];
+                    const promises = [];
+                    
+                    for (let day = 1; day <= 30; day++) {
+                        promises.push(
+                            fetch(`${API_URL}/challenges/today?day=${day}`, {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success && data.challenge) {
+                                    challenges.push({
+                                        day: day,
+                                        title: data.challenge.title,
+                                        date: data.challenge.date,
+                                        isActive: data.challenge.isActive !== false,
+                                        visibleTests: data.challenge.visibleTestCases?.length || 0,
+                                        hiddenTests: data.challenge.hiddenTestCases?.length || 0
+                                    });
+                                }
+                            })
+                            .catch(() => {})
+                        );
+                    }
+
+                    await Promise.all(promises);
+                    
+                    // Sort by day
+                    challenges.sort((a, b) => a.day - b.day);
+
+                    if (challenges.length === 0) {
+                        challengeListDiv.innerHTML = `
+                            <span style="color: var(--text-muted); padding: 20px; text-align: center; width: 100%;">
+                                No challenges found. Make sure you have seeded challenges.
+                            </span>
+                        `;
+                        return;
+                    }
+
+                    displayChallengeList(challenges);
+                    showToast(`✅ Loaded ${challenges.length} challenges`);
+
+                } catch (error) {
+                    console.error('Load all challenges error:', error);
+                    challengeListDiv.innerHTML = `
+                        <span class="error-text">❌ Failed to load challenges</span>
+                        <span style="color: var(--text-muted); display: block; margin-top: 4px;">
+                            ${error.message}
+                        </span>
+                    `;
+                }
+            };
+
+            // ===== Display Challenge List =====
+            function displayChallengeList(challenges) {
+                if (!challenges || challenges.length === 0) {
+                    challengeListDiv.innerHTML = '<span style="color: var(--text-muted);">No challenges available</span>';
+                    return;
+                }
+
+                let html = '';
+                challenges.forEach(c => {
+                    const dateStr = c.date ? new Date(c.date).toLocaleDateString() : 'No date';
+                    const statusClass = c.isActive ? 'active' : 'inactive';
+                    html += `
+                        <div class="challenge-card-item" onclick="loadChallengeByDayNum(${c.day})">
+                            <span class="day-badge">Day ${c.day}</span>
+                            <span class="title-text">${c.title || 'Untitled'}</span>
+                            <span class="date-text">${dateStr}</span>
+                            <span class="status-dot ${statusClass}"></span>
+                            <button class="load-btn-small" onclick="event.stopPropagation(); loadChallengeByDayNum(${c.day})">
+                                Load
+                            </button>
+                        </div>
+                    `;
+                });
+
+                challengeListDiv.innerHTML = html;
+            }
+
+            // ===== Load Challenge by Day Number =====
+            window.loadChallengeByDayNum = function(day) {
+                document.getElementById('testDay').value = day;
+                loadChallenge(`?day=${day}`);
+            };
+
+            // ===== Load Challenge =====
+            async function loadChallenge(params) {
+                resultDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading challenge...`;
+                
+                try {
+                    const token = localStorage.getItem('stcc_token');
+                    if (!token) {
+                        resultDiv.innerHTML = `<span class="error-text">❌ Please login first.</span>`;
+                        return;
+                    }
+
+                    const url = `${API_URL}/challenges/today${params}`;
+                    console.log('📡 Fetching:', url);
+
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            localStorage.removeItem('stcc_token');
+                            localStorage.removeItem('stcc_user');
+                            resultDiv.innerHTML = `<span class="error-text">❌ Session expired. Please login again.</span>`;
+                            return;
+                        }
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('📡 Response:', data);
+                    
+                    if (data.success && data.challenge) {
+                        displayChallenge(data.challenge, params);
+                    } else {
+                        resultDiv.innerHTML = `<span class="error-text">❌ ${data.message || 'No challenge found'}</span>`;
+                    }
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                    resultDiv.innerHTML = `<span class="error-text">❌ Error: ${error.message}</span>`;
+                    showToast('Failed to load challenge: ' + error.message, true);
+                }
+            }
+
+            // ===== Display Challenge =====
+            function displayChallenge(challenge, params) {
+                const isTestMode = params && (params.includes('testDate') || params.includes('day'));
+                
+                let html = '';
+                
+                html += `📌 <span class="label">Challenge:</span> <span class="value">${challenge.title || 'Untitled'}</span>\n`;
+                html += `📅 <span class="label">Day:</span> <span class="value">${challenge.dayNumber || '?'}</span>\n`;
+                html += `📊 <span class="label">Difficulty:</span> <span class="value">${challenge.difficulty || 'Medium'}</span>\n`;
+                html += `⭐ <span class="label">Points:</span> <span class="value">${challenge.points || 10}</span>\n`;
+                html += `📅 <span class="label">Date:</span> <span class="value">${challenge.date ? new Date(challenge.date).toLocaleDateString() : 'Not set'}</span>\n`;
+                html += `📝 <span class="label">Description:</span> \n   ${challenge.description || 'No description'}\n`;
+                
+                if (challenge.examples) {
+                    html += `\n📋 <span class="label">Examples:</span>\n   ${challenge.examples.replace(/\n/g, '\n   ')}\n`;
+                }
+                
+                html += `\n📋 <span class="label">Visible Test Cases:</span> <span class="value">${challenge.visibleTestCases?.length || 0}</span>\n`;
+                html += `🔒 <span class="label">Hidden Test Cases:</span> <span class="value">${challenge.hiddenTestCases?.length || 0}</span>\n`;
+                html += `✅ <span class="label">Solved:</span> ${challenge.isSolved ? '✅ Yes' : '❌ No'}\n`;
+                
+                if (challenge.visibleTestCases && challenge.visibleTestCases.length > 0) {
+                    html += `\n📝 <span class="label">Sample Test Cases:</span>\n`;
+                    challenge.visibleTestCases.forEach((tc, i) => {
+                        html += `   Test ${i+1}:\n`;
+                        html += `     Input: ${tc.input.trim()}\n`;
+                        html += `     Output: ${tc.output.trim()}\n`;
+                    });
+                }
+                
+                // Check if it's today's challenge
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const challengeDate = challenge.date ? new Date(challenge.date) : null;
+                if (challengeDate) {
+                    challengeDate.setHours(0, 0, 0, 0);
+                    if (challengeDate.getTime() === today.getTime()) {
+                        html += `\n${'═'.repeat(50)}\n`;
+                        html += `<span class="success-text">✅ This is TODAY'S challenge!</span>`;
+                    }
+                }
+                
+                if (isTestMode) {
+                    html += `\n${'═'.repeat(50)}\n`;
+                    html += `<span class="warning-text">🧪 TEST MODE: ${params}</span>\n`;
+                    html += `<span class="text-muted">This is not today's challenge. Use for testing only.</span>`;
+                }
+                
+                resultDiv.innerHTML = html;
+            }
+
+            // ===== Load Functions =====
+            window.loadChallengeByDate = function() {
+                const date = document.getElementById('testDate').value;
+                if (!date) {
+                    showToast('Please select a date', true);
+                    return;
+                }
+                loadChallenge(`?testDate=${date}`);
+            };
+
+            window.loadChallengeByDay = function() {
+                const day = document.getElementById('testDay').value;
+                if (!day) {
+                    showToast('Please enter a day number', true);
+                    return;
+                }
+                loadChallenge(`?day=${day}`);
+            };
+
+            window.loadToday = function() {
+                const today = new Date();
+                const dateStr = today.toISOString().split('T')[0];
+                document.getElementById('testDate').value = dateStr;
+                loadChallenge('');
+            };
+
+            window.loadTomorrow = function() {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const dateStr = tomorrow.toISOString().split('T')[0];
+                document.getElementById('testDate').value = dateStr;
+                loadChallenge(`?testDate=${dateStr}`);
+            };
+
+            window.clearCache = function() {
+                if (confirm('Clear session and logout?')) {
+                    localStorage.clear();
+                    showToast('✅ Cache cleared. Logging out...');
+                    setTimeout(() => window.location.href = 'login.html', 1000);
+                }
+            };
+
+            // ===== Set Default Date =====
+            function setDefaultDate() {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('testDate').value = tomorrow.toISOString().split('T')[0];
+            }
+
+            // ===== Init =====
+            function init() {
+                console.log('🧪 Test Challenge Viewer initialized');
+                console.log(`📡 API URL: ${API_URL}`);
+                console.log('📌 No code changes required - uses existing API');
+                
+                checkAuth();
+                setDefaultDate();
+                
+                // Load today's challenge by default
+                loadChallenge('');
+                
+                // Auto load all challenges after a moment
+                setTimeout(() => {
+                    loadAllChallenges();
+                }, 1500);
+            }
+
+            // Run on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+
+</body>
+</html>

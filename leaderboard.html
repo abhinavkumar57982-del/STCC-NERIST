@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaderboard · STCC</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/particles.css" />
+    <link rel="stylesheet" href="css/leaderboard.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <header class="navbar" id="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-brand">
+                <img src="cropped_circle_image (2).png" alt="STCC Logo" class="brand-logo-img" />
+                <span class="brand-logo">STCC</span>
+            </div>
+            <nav class="navbar-links" id="navbarLinks">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="Events.html">Events</a></li>
+                    <li><a href="leaderboard.html" class="active">Leaderboard</a></li>
+                    <li><a href="E-body.html">E-Body</a></li>
+                    <li><a href="Gallery.html">Gallery</a></li>
+                    <li><a href="MyCertificates.html">My Certificates</a></li>
+                    <li><a href="ContactUs.html">Contact</a></li>
+                    <li id="authNavItem">
+                        <a href="#" class="login-link" id="authLink">Login</a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== LEADERBOARD SECTION ===== -->
+    <section class="leaderboard-section">
+        <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+        <div class="container">
+            <div class="leaderboard-header">
+                <div class="leaderboard-title-wrapper">
+                    <h1 class="leaderboard-main-title">
+                        <i class="fas fa-trophy"></i> Leaderboard
+                    </h1>
+                    <span class="leaderboard-subtitle" id="totalStudents">Loading students...</span>
+                </div>
+                <div class="leaderboard-actions">
+                    <a href="daily-challenge.html" class="btn btn-primary btn-sm">
+                        <i class="fas fa-code"></i> Today's Challenge
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="leaderboard-filters">
+                <div class="filter-group">
+                    <input type="text" class="filter-search" id="searchInput" placeholder="Search by name or registration..." />
+                </div>
+                <button class="btn btn-secondary btn-sm" id="refreshLeaderboardBtn">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
+            <!-- My Stats Card -->
+            <div class="my-stats-card" id="myStatsCard">
+                <div class="my-stats-content">
+                    <div class="my-stats-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="my-stats-info">
+                        <h3 id="myName">Loading...</h3>
+                        <p id="myRegNo">Loading...</p>
+                    </div>
+                    <div class="my-stats-numbers">
+                        <div class="stat-item">
+                            <span class="stat-value" id="myRank">-</span>
+                            <span class="stat-label">Rank</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="myPoints">0</span>
+                            <span class="stat-label">Points</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="mySolved">0</span>
+                            <span class="stat-label">Solved</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="myStreak">0</span>
+                            <span class="stat-label">Streak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Podium (Top 3) -->
+            <div class="podium-wrapper" id="podiumWrapper">
+                <!-- Dynamically generated -->
+            </div>
+
+            <!-- Leaderboard Table -->
+            <div class="leaderboard-table-wrap">
+                <table class="leaderboard-table" id="leaderboardTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Student</th>
+                            <th>Points</th>
+                            <th>Solved</th>
+                            <th>Bonus</th>
+                            <th>Streak</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Dynamically generated -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Loading State -->
+            <div class="leaderboard-loading" id="leaderboardLoading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading leaderboard...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="leaderboard-empty" id="leaderboardEmpty" style="display: none;">
+                <i class="fas fa-users"></i>
+                <h3>No students registered yet</h3>
+                <p>Start by registering and solving coding challenges!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer" id="contact">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo-wrapper">
+                    <img src="cropped_circle_image (2).png" alt="STCC Logo" class="footer-logo-img" />
+                    <span class="footer-logo">STCC</span>
+                </div>
+                <p class="footer-tagline">Student Technical Coding Club</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="Events.html">Events</a></li>
+                        <li><a href="leaderboard.html" class="active">Leaderboard</a></li>
+                        <li><a href="E-body.html">E-Body</a></li>
+                        <li><a href="Gallery.html">Gallery</a></li>
+                        <li><a href="ContactUs.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Social</h4>
+                    <ul class="social-links">
+                        <li><a href="#">GitHub</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">Instagram</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <p><a href="mailto:stcc.codingclub@gmail.com">stcc.codingclub@gmail.com</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 STCC. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/leaderboard.js"></script>
+</body>
+</html>

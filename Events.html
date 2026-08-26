@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Events · STCC Student Technical Coding Club</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/particles.css" />
+    <link rel="stylesheet" href="css/events.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <header class="navbar" id="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-brand">
+                <img src="cropped_circle_image (2).png" alt="STCC Logo" class="brand-logo-img" />
+                <span class="brand-logo">STCC</span>
+            </div>
+            <nav class="navbar-links" id="navbarLinks">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="Events.html" class="active">Events</a></li>
+                    <li><a href="leaderboard.html">Leaderboard</a></li>
+                    <li><a href="E-body.html">E-Body</a></li>
+                    <li><a href="Gallery.html">Gallery</a></li>
+                    <li><a href="MyCertificates.html">My Certificates</a></li>
+                    <li><a href="ContactUs.html">Contact</a></li>
+                    <li id="authNavItem">
+                        <a href="#" class="login-link" id="authLink">Login</a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== EVENTS SECTION ===== -->
+    <section class="events-section">
+        <!-- Particle Canvas -->
+        <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+        <div class="container">
+
+            <!-- Page Header -->
+            <div class="board-header">
+                <h1>
+                    <i class="fas fa-road"></i> Events
+                    <span>Journey</span>
+                </h1>
+                <div class="board-stats">
+                    <span><i class="fas fa-flag-checkered"></i> Milestones</span>
+                    <span class="badge"><i class="fas fa-calendar-alt"></i> <span id="eventCount">0</span> events</span>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-bar-events">
+                <button class="filter-btn active" data-filter="ALL">All Events</button>
+                <button class="filter-btn" data-filter="UPCOMING">⏳ Upcoming</button>
+                <button class="filter-btn" data-filter="ONGOING">● Ongoing</button>
+                <button class="filter-btn" data-filter="PAST">✓ Past</button>
+            </div>
+
+            <!-- Timeline Container -->
+            <div id="eventsContainer"></div>
+
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer" id="contact">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo-wrapper">
+                    <img src="cropped_circle_image (2).png" alt="STCC Logo" class="footer-logo-img" />
+                    <span class="footer-logo">STCC</span>
+                </div>
+                <p class="footer-tagline">Student Technical Coding Club</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="Events.html" class="active">Events</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="E-body.html">E-Body</a></li>
+                        <li><a href="Gallery.html">Gallery</a></li>
+                        <li><a href="ContactUs.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Social</h4>
+                    <ul class="social-links">
+                        <li><a href="#">GitHub</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">Instagram</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <p><a href="mailto:stcc.codingclub@gmail.com">stcc.codingclub@gmail.com</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 STCC. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== EVENT DETAILS MODAL ===== -->
+    <div class="event-modal" id="eventModal">
+        <div class="modal-overlay-event" id="modalOverlay"></div>
+        <div class="modal-content-event">
+            <button class="modal-close-event" id="modalClose">✕</button>
+            <div class="modal-body">
+                <img src="" alt="Event Image" class="modal-image" id="modalImage" />
+                <span class="modal-status" id="modalStatus">Status</span>
+                <h2 id="modalTitle">Event Title</h2>
+                <div class="modal-meta">
+                    <span><i class="fas fa-calendar-alt"></i> <span id="modalDate">Date</span></span>
+                    <span><i class="fas fa-map-marker-alt"></i> <span id="modalVenue">Venue</span></span>
+                    <span id="modalParticipants"><i class="fas fa-users"></i> Participants</span>
+                </div>
+                <p id="modalDescription">Description goes here.</p>
+                <div class="modal-details-container">
+                    <!-- Dynamic content: highlights, winners, gallery, etc. -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div class="event-lightbox" id="lightbox">
+        <div class="lightbox-overlay-event" id="lightboxOverlay"></div>
+        <div class="lightbox-content-event">
+            <button class="lightbox-close-event" id="lightboxClose">✕</button>
+            <img src="" alt="Lightbox Image" id="lightboxImage" />
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/particles.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/events-ui.js"></script>
+
+</body>
+</html>

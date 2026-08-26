@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login · STCC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="css/particles.css" />
+    <style>
+        /* ── STCC Theme Variables ── */
+        :root {
+            --bg-dark: #050807;
+            --bg-surface: #071C1A;
+            --bg-card: rgba(7, 28, 26, 0.7);
+            --emerald: #00D084;
+            --emerald-light: #6EE7B7;
+            --emerald-dark: #009966;
+            --white: #F5F5F5;
+            --text-muted: #8A9B9A;
+            --text-light: #B8C5C4;
+            --glass-border: rgba(0, 208, 132, 0.08);
+            --glass-border-hover: rgba(0, 208, 132, 0.2);
+            --radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-glow: 0 0 60px rgba(0, 208, 132, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: var(--bg-dark);
+            font-family: 'Inter', sans-serif;
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(0, 208, 132, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0, 208, 132, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 208, 132, 0.02) 0%, transparent 70%);
+            background-attachment: fixed;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Particle Canvas */
+        #particleCanvas {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 0 !important;
+            pointer-events: none !important;
+            display: block !important;
+            background: transparent !important;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 99999;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            background: rgba(0, 208, 132, 0.9);
+            color: #fff;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: all;
+        }
+        .toast.error {
+            background: rgba(239, 68, 68, 0.9);
+        }
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            animation: fadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border-radius: 24px;
+            padding: 2.5rem 2.8rem 2.2rem;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+        .login-card:hover {
+            border-color: var(--glass-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(0, 208, 132, 0.08);
+            border: 2px solid rgba(0, 208, 132, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            font-size: 2.5rem;
+            color: var(--emerald-light);
+            transition: all 0.3s ease;
+        }
+        .profile-pic:hover {
+            border-color: var(--emerald);
+            box-shadow: 0 0 30px rgba(0, 208, 132, 0.1);
+            transform: scale(1.05);
+        }
+        .auth-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 60px;
+            padding: 0.2rem;
+            margin-bottom: 1.8rem;
+            border: 1px solid var(--glass-border);
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .auth-tab.active {
+            background: rgba(0, 208, 132, 0.12);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(0, 208, 132, 0.08);
+        }
+        .auth-tab:hover:not(.active) {
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+        .login-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.2rem;
+            color: var(--white);
+            letter-spacing: -0.3px;
+        }
+        .login-card .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .form-group .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus {
+            border-color: rgba(0, 208, 132, 0.4);
+            box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.06);
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .form-group input:focus + i,
+        .form-group input:focus ~ i {
+            color: var(--emerald-light);
+        }
+        .form-group input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .form-options label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .form-options label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--emerald);
+            cursor: pointer;
+        }
+        .form-options a {
+            color: var(--emerald-light);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .form-options a:hover {
+            color: var(--emerald);
+            text-decoration: underline;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 40px;
+            border: none;
+            background: linear-gradient(135deg, var(--emerald), var(--emerald-light));
+            color: var(--bg-dark);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 208, 132, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(0, 208, 132, 0.35);
+            background: linear-gradient(135deg, var(--emerald), #8cf0c4);
+        }
+        .btn-submit:active {
+            transform: scale(0.97);
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-submit.loading i {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .signup-link {
+            text-align: center;
+            margin-top: 1.2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .signup-link a {
+            color: var(--emerald-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .signup-link a:hover {
+            color: var(--emerald);
+            text-decoration: underline;
+        }
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            transition: all 0.25s ease;
+        }
+        .back-home:hover {
+            color: var(--emerald-light);
+            transform: translateX(-4px);
+        }
+        .back-home i {
+            transition: all 0.25s ease;
+        }
+        .back-home:hover i {
+            transform: translateX(-4px);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 500px) {
+            .login-card { padding: 1.8rem 1.2rem 1.5rem; }
+            .profile-pic { width: 64px; height: 64px; font-size: 2rem; }
+            .btn-submit { font-size: 0.9rem; padding: 0.8rem; }
+            .form-group input { padding: 0.75rem 0.9rem 0.75rem 2.4rem; font-size: 0.9rem; }
+            .auth-tab { font-size: 0.8rem; padding: 0.5rem; }
+        }
+        @media (max-height: 700px) {
+            .profile-pic { width: 56px; height: 56px; margin-bottom: 0.8rem; font-size: 1.5rem; }
+            .login-card h2 { font-size: 1.2rem; }
+            .login-card .subtitle { font-size: 0.8rem; margin-bottom: 1rem; }
+            .form-group { margin-bottom: 0.8rem; }
+            .form-group input { padding: 0.6rem 0.9rem 0.6rem 2.4rem; font-size: 0.85rem; }
+            .form-options { margin-bottom: 0.8rem; }
+            .btn-submit { padding: 0.7rem; font-size: 0.9rem; }
+            .auth-tabs { margin-bottom: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast"></div>
+    
+    <!-- Particle Canvas -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="profile-pic"><i class="fas fa-user-circle"></i></div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Sign In</button>
+                <button class="auth-tab" data-tab="signup">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginFormContainer" class="auth-form active">
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Sign in with your Registration Number</p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Registration Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-id-card"></i>
+                            <input type="text" id="loginRegNo" placeholder="e.g., 225088" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required />
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label><input type="checkbox" checked /> Remember me</label>
+                        <a href="forgot-password.html" id="forgotPassword">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn-submit" id="loginBtn">
+                        <i class="fas fa-arrow-right"></i> Sign In
+                    </button>
+                </form>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupFormContainer" class="auth-form">
+                <h2>Create Account</h2>
+                <p class="subtitle">Join the STCC Community</p>
+                <form id="signupForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="signupName" placeholder="Enter your full name" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Registration Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-id-card"></i>
+                            <input type="text" id="signupRegNo" placeholder="e.g., 225088" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="signupEmail" placeholder="you@example.com" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="signupContact" placeholder="e.g., 9876543210" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signupPassword" placeholder="Min 6 characters" required minlength="6" />
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label><input type="checkbox" id="termsCheck" checked /> I agree to Terms & Privacy</label>
+                    </div>
+                    <button type="submit" class="btn-submit" id="signupBtn">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
+                </form>
+            </div>
+
+            <div class="signup-link">
+                <span id="toggleText">Don't have an account?</span>
+                <a href="#" id="toggleAuthBtn">Sign Up</a>
+            </div>
+
+            <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/particles.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ===== AUTH SYSTEM =====
+        const API_URL = 'http://localhost:5000/api';
+        const REDIRECT_URL = 'index.html';
+
+        const toast = document.getElementById('toast');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const loginRegNo = document.getElementById('loginRegNo');
+        const loginPassword = document.getElementById('loginPassword');
+        const signupName = document.getElementById('signupName');
+        const signupRegNo = document.getElementById('signupRegNo');
+        const signupEmail = document.getElementById('signupEmail');
+        const signupContact = document.getElementById('signupContact');
+        const signupPassword = document.getElementById('signupPassword');
+        const termsCheck = document.getElementById('termsCheck');
+        const forgotPassword = document.getElementById('forgotPassword');
+
+        function showToast(msg, isError = false) {
+            toast.textContent = msg;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.classList.add('show');
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        function setLoading(btn, loading) {
+            if (loading) {
+                btn.disabled = true;
+                btn.classList.add('loading');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Please wait...';
+            } else {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                if (btn.id === 'loginBtn') {
+                    btn.innerHTML = '<i class="fas fa-arrow-right"></i> Sign In';
+                } else {
+                    btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+                }
+            }
+        }
+
+        // Tab switching
+        const tabs = document.querySelectorAll('.auth-tab');
+        const loginContainer = document.getElementById('loginFormContainer');
+        const signupContainer = document.getElementById('signupFormContainer');
+        const toggleBtn = document.getElementById('toggleAuthBtn');
+        const toggleText = document.getElementById('toggleText');
+
+        function switchTab(tab) {
+            tabs.forEach(b => b.classList.remove('active'));
+            document.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
+            if (tab === 'login') {
+                loginContainer.classList.add('active');
+                signupContainer.classList.remove('active');
+                toggleText.textContent = "Don't have an account?";
+                toggleBtn.textContent = 'Sign Up';
+                toggleBtn.dataset.target = 'signup';
+            } else {
+                signupContainer.classList.add('active');
+                loginContainer.classList.remove('active');
+                toggleText.textContent = 'Already have an account?';
+                toggleBtn.textContent = 'Sign In';
+                toggleBtn.dataset.target = 'login';
+            }
+        }
+
+        tabs.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchTab(toggleBtn.dataset.target || 'signup');
+        });
+
+        forgotPassword.addEventListener('click', (e) => {
+            e.preventDefault();
+             window.location.href = 'forgot-password.html';
+        });
+
+        // ===== LOGIN =====
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const registrationNo = loginRegNo.value.trim();
+            const password = loginPassword.value.trim();
+
+            if (!registrationNo || !password) {
+                showToast('Please fill in all fields.', true);
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters.', true);
+                return;
+            }
+
+            setLoading(loginBtn, true);
+
+            try {
+                console.log('Sending login request for:', registrationNo);
+
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ registrationNo, password })
+                });
+
+                const data = await res.json();
+                console.log('Login response:', data);
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // Store user data
+                localStorage.setItem('stcc_token', data.token);
+                localStorage.setItem('stcc_user', JSON.stringify(data.user));
+
+                showToast(`✅ Welcome back, ${data.user.name}!`);
+
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = REDIRECT_URL;
+                }, 800);
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast(error.message || '❌ Login failed. Please try again.', true);
+                setLoading(loginBtn, false);
+            }
+        });
+
+        // ===== SIGNUP =====
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = signupName.value.trim();
+            const registrationNo = signupRegNo.value.trim();
+            const email = signupEmail.value.trim();
+            const contact = signupContact.value.trim();
+            const password = signupPassword.value.trim();
+
+            // Validate
+            if (!name || !registrationNo || !email || !contact || !password) {
+                showToast('Please fill in all fields.', true);
+                return;
+            }
+
+            if (name.length < 2) {
+                showToast('Please enter your full name.', true);
+                return;
+            }
+
+            if (registrationNo.length < 3) {
+                showToast('Please enter a valid registration number.', true);
+                return;
+            }
+
+            if (!email.includes('@') || !email.includes('.')) {
+                showToast('Please enter a valid email address.', true);
+                return;
+            }
+
+            if (!/^\d{10}$/.test(contact)) {
+                showToast('Please enter a valid 10-digit contact number.', true);
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters.', true);
+                return;
+            }
+
+            if (!termsCheck.checked) {
+                showToast('Please agree to the Terms & Privacy policy.', true);
+                return;
+            }
+
+            setLoading(signupBtn, true);
+
+            try {
+                console.log('Sending signup request for:', registrationNo);
+
+                const res = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        name, 
+                        registrationNo, 
+                        email, 
+                        contact, 
+                        password 
+                    })
+                });
+
+                const data = await res.json();
+                console.log('Signup response:', data);
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Registration failed');
+                }
+
+                // Store user data
+                localStorage.setItem('stcc_token', data.token);
+                localStorage.setItem('stcc_user', JSON.stringify(data.user));
+
+                showToast(`🎉 Welcome to STCC, ${data.user.name}!`);
+
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = REDIRECT_URL;
+                }, 800);
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                showToast(error.message || '❌ Registration failed. Please try again.', true);
+                setLoading(signupBtn, false);
+            }
+        });
+
+        // ===== CHECK IF ALREADY LOGGED IN =====
+        if (localStorage.getItem('stcc_token')) {
+            window.location.href = REDIRECT_URL;
+        }
+
+        console.log('🚀 STCC Auth System Ready (Registration Number based)');
+        console.log('📡 API URL:', API_URL);
+
+    })();
+    </script>
+
+</body>
+</html>
