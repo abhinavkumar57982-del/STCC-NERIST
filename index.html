@@ -199,31 +199,11 @@
     <section class="events" id="events">
         <div class="container">
             <div class="section-header">
-                <h2>WHAT'S HAPPENING</h2>
-                <p class="section-subhead">Upcoming events you can't miss</p>
+                <h2>PAST EVENTS</h2>
+                <p class="section-subhead">Our journey so far</p>
             </div>
-            <div class="events-grid">
-                <div class="event-card">
-                    <div class="event-date-badge">12 SEP 2026</div>
-                    <h3>STCC CODESPRINT</h3>
-                    <span class="event-type">Coding Competition</span>
-                    <p class="event-desc">Speed, logic, and precision. Compete with the best.</p>
-                    <a href="#" class="btn btn-outline btn-sm">Learn More →</a>
-                </div>
-                <div class="event-card featured">
-                    <div class="event-date-badge">20 SEP 2026</div>
-                    <h3>WEBFORGE</h3>
-                    <span class="event-type">Web Development Workshop</span>
-                    <p class="event-desc">Build modern web applications with industry mentors.</p>
-                    <a href="#" class="btn btn-primary btn-sm">Learn More →</a>
-                </div>
-                <div class="event-card">
-                    <div class="event-date-badge">5 OCT 2026</div>
-                    <h3>HACKSTCC</h3>
-                    <span class="event-type">Hackathon</span>
-                    <p class="event-desc">48 hours of innovation. Build, pitch, and win.</p>
-                    <a href="#" class="btn btn-outline btn-sm">Learn More →</a>
-                </div>
+            <div class="events-grid" id="pastEventsContainer">
+                <!-- Past events will be injected here by JavaScript -->
             </div>
             <div class="events-footer">
                 <a href="Events.html" class="link-arrow">VIEW ALL EVENTS →</a>
@@ -231,28 +211,17 @@
         </div>
     </section>
 
-    <!-- ===== LEADERBOARD PREVIEW ===== -->
-    <section class="leaderboard" id="leaderboard">
+    <!-- ===== DAILY CHALLENGE (replaces Leaderboard) ===== -->
+    <section class="daily-challenge" id="dailyChallenge">
         <div class="container">
             <div class="section-header">
-                <h2>Top Coders</h2>
-                <p class="section-subhead">The best of the best.</p>
+                <h2>DAILY CHALLENGE</h2>
+                <p class="section-subhead">Sharpen your skills, one problem at a time</p>
             </div>
-            <div class="leaderboard-table-wrap">
-                <table class="leaderboard-table">
-                    <thead>
-                        <tr><th>Rank</th><th>Name</th><th>Points</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr class="rank-1"><td>🥇 1</td><td>Aarav Sharma</td><td>2450</td></tr>
-                        <tr class="rank-2"><td>🥈 2</td><td>Priya Patel</td><td>2320</td></tr>
-                        <tr class="rank-3"><td>🥉 3</td><td>Rahul Verma</td><td>2180</td></tr>
-                        <tr><td>4</td><td>Sophia Chen</td><td>2050</td></tr>
-                        <tr><td>5</td><td>Vikram Singh</td><td>1940</td></tr>
-                    </tbody>
-                </table>
-                <div class="leaderboard-footer">
-                    <a href="#" class="link-arrow">View Full Leaderboard →</a>
+            <div id="dailyChallengeContent">
+                <!-- Daily Challenge content will be injected here by JavaScript -->
+                <div class="daily-challenge-placeholder">
+                    <i class="fas fa-spinner fa-spin"></i> Loading challenge...
                 </div>
             </div>
         </div>
@@ -314,7 +283,7 @@
                     <ul>
                         <li><a href="#hero">Home</a></li>
                         <li><a href="#events">Events</a></li>
-                        <li><a href="#leaderboard">Leaderboard</a></li>
+                        <li><a href="#dailyChallenge">Daily Challenge</a></li>
                         <li><a href="E-body.html">E-Body</a></li>
                         <li><a href="#gallery">Gallery</a></li>
                         <li><a href="#contact">Contact</a></li>
@@ -343,162 +312,140 @@
     <script src="js/particles.js"></script>
     <script src="js/script.js"></script>
     <script src="js/auth.js"></script>
+    <script>
+        // ============================================================
+        // 1. LOAD PAST EVENTS FROM Events.html DATA
+        //    (Reuses the eventsData array from js/events.js)
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load events data dynamically
+            const script = document.createElement('script');
+            script.src = 'js/events.js';
+            script.onload = function() {
+                const pastEventsContainer = document.getElementById('pastEventsContainer');
+                if (!pastEventsContainer) return;
+
+                // Filter past events
+                const now = new Date();
+                const pastEvents = eventsData.filter(event => {
+                    const eventDate = new Date(event.startDate + 'T' + event.startTime);
+                    return eventDate < now;
+                });
+
+                // Sort past events by date (most recent first)
+                pastEvents.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+                // Limit to 3 events for display
+                const displayEvents = pastEvents.slice(0, 3);
+
+                if (displayEvents.length === 0) {
+                    pastEventsContainer.innerHTML = `
+                        <div class="event-card" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                            <p style="color: var(--text-muted);">No past events to show yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Render events using the same card structure as index.html
+                let html = '';
+                displayEvents.forEach(event => {
+                    const isFeatured = event.id === 'hackathon-2025' || event.id === 'techsprint-2026';
+                    html += `
+                        <div class="event-card ${isFeatured ? 'featured' : ''}">
+                            <div class="event-date-badge">${formatDate(event.startDate)}</div>
+                            <h3>${event.title}</h3>
+                            <span class="event-type">${event.venue || 'STCC Event'}</span>
+                            <p class="event-desc">${event.description.substring(0, 100)}${event.description.length > 100 ? '...' : ''}</p>
+                            <a href="Events.html" class="btn btn-outline btn-sm">Learn More →</a>
+                        </div>
+                    `;
+                });
+
+                pastEventsContainer.innerHTML = html;
+            };
+            document.head.appendChild(script);
+
+            // Helper function to format date
+            function formatDate(dateStr) {
+                const d = new Date(dateStr);
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            // ============================================================
+            // 2. LOAD DAILY CHALLENGE FROM daily-challenge.html LOGIC
+            //    (Reuses the Daily Challenge API and rendering logic)
+            // ============================================================
+            const dailyChallengeContainer = document.getElementById('dailyChallengeContent');
+            if (!dailyChallengeContainer) return;
+
+            // Show loading state
+            dailyChallengeContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px 0; color: var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; display: block; margin-bottom: 16px;"></i>
+                    Loading today's challenge...
+                </div>
+            `;
+
+            const API_URL = window.API_URL || 'http://localhost:5000/api';
+
+            async function loadDailyChallenge() {
+                try {
+                    const token = localStorage.getItem('stcc_token');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+
+                    const response = await fetch(`${API_URL}/challenges/today`, { headers });
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('No challenge available for today.');
+                        }
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (!data.success || !data.challenge) {
+                        throw new Error(data.message || 'Challenge not found');
+                    }
+
+                    const challenge = data.challenge;
+                    const isSolved = challenge.isSolved || false;
+
+                    // Build the daily challenge card (matching the style of index.html)
+                    // The button now properly redirects to daily-challenge.html
+                    dailyChallengeContainer.innerHTML = `
+                        <div class="event-card featured" style="max-width: 800px; margin: 0 auto; padding: 30px;">
+                            <div class="event-date-badge">Day ${challenge.dayNumber || '?'} · ${challenge.difficulty || 'Medium'}</div>
+                            <h3 style="font-size: 1.4rem; margin-bottom: 4px;">${challenge.title || 'Daily Challenge'}</h3>
+                            <span class="event-type">${challenge.points || 10} points</span>
+                            <p class="event-desc" style="margin-top: 12px;">${challenge.description || 'No description provided.'}</p>
+                            <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                <a href="daily-challenge.html" class="btn btn-primary btn-sm">
+                                    ${isSolved ? '✅ Solved · Try Again' : '🚀 Solve Challenge'}
+                                </a>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                                    ${isSolved ? 'You already solved this challenge!' : 'New challenge every day'}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Daily Challenge error:', error);
+                    dailyChallengeContainer.innerHTML = `
+                        <div style="text-align: center; padding: 30px 0; color: var(--text-muted);">
+                            <i class="fas fa-code" style="font-size: 2rem; display: block; margin-bottom: 12px; opacity: 0.3;"></i>
+                            <p style="font-size: 1.1rem; color: var(--white);">Daily Challenge</p>
+                            <p style="font-size: 0.9rem;">${error.message || 'Could not load challenge. Please try again later.'}</p>
+                            <a href="daily-challenge.html" class="btn btn-outline btn-sm" style="margin-top: 12px;">Go to Daily Challenge →</a>
+                        </div>
+                    `;
+                }
+            }
+
+            loadDailyChallenge();
+        });
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
