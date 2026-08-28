@@ -39,9 +39,9 @@ const eventsData = [
     {
         id: "techsprint-2026",
         title: "TechSprint",
-        startDate: "2025-12-21",
+        startDate: "2026-01-21",
         startTime: "16:00",
-        endDate: "2026-01-07",
+        endDate: "2026-01-21",
         endTime: "19:00",
         venue: "CSE seminar hall, NERIST ",
         description: "GDG on Campus NERIST and the Student Tech & Coding Club (STCC) present Google TechSprint, an open innovation hackathon. Whether you're a solo coder or part of a team of 1–4, this is your stage to innovate!",
