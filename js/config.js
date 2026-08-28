@@ -8,14 +8,14 @@
         
         console.log(`🌐 Hostname: ${hostname}, Port: ${port}`);
         
-        // Local development (localhost or 127.0.0.1)
+        // Local development
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return 'http://localhost:5000/api';
         }
         
         // Production (Render)
-        // ✅ CHANGE THIS TO YOUR ACTUAL RENDER URL
-        return 'https://your-app-name.onrender.com/api';
+        // ✅ YOUR ACTUAL RENDER URL
+        return 'https://stcc-nerist.onrender.com/api';
     };
 
     if (typeof window.API_URL === 'undefined') {
