@@ -1,4 +1,4 @@
-// js/config.js
+// ===== API CONFIGURATION =====
 (function() {
     'use strict';
     
@@ -8,13 +8,13 @@
         
         console.log(`🌐 Hostname: ${hostname}, Port: ${port}`);
         
-        // Local development - handle both localhost and 127.0.0.1
+        // Local development (localhost or 127.0.0.1)
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return 'http://localhost:5000/api';
         }
         
         // Production (Render)
-        // CHANGE THIS TO YOUR ACTUAL RENDER URL
+        // ✅ CHANGE THIS TO YOUR ACTUAL RENDER URL
         return 'https://your-app-name.onrender.com/api';
     };
 
