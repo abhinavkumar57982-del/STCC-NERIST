@@ -1,20 +1,23 @@
-// ===== API CONFIGURATION =====
+// js/config.js
 (function() {
     'use strict';
     
-    // Determine API URL based on environment
     const getApiUrl = () => {
-        // Production (Render)
-        if (window.location.hostname !== 'localhost' && 
-            window.location.hostname !== '127.0.0.1') {
-            // ⚠️ IMPORTANT: Replace with your Render URL
-            return 'https://stcc-website.onrender.com/api';
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        
+        console.log(`🌐 Hostname: ${hostname}, Port: ${port}`);
+        
+        // Local development - handle both localhost and 127.0.0.1
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:5000/api';
         }
-        // Local development
-        return 'http://localhost:5000/api';
+        
+        // Production (Render)
+        // CHANGE THIS TO YOUR ACTUAL RENDER URL
+        return 'https://your-app-name.onrender.com/api';
     };
 
-    // Set the API URL globally
     if (typeof window.API_URL === 'undefined') {
         window.API_URL = getApiUrl();
         console.log(`🔗 API URL: ${window.API_URL}`);
