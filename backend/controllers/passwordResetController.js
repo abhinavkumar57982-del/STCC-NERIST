@@ -14,7 +14,7 @@ const hashToken = (token) => {
 };
 
 // ==========================================
-// STEP 1: Verify Email + Phone
+// STEP 1: Verify Email + Phone (Direct Reset)
 // ==========================================
 const verifyAccount = async (req, res) => {
     try {
@@ -37,55 +37,120 @@ const verifyAccount = async (req, res) => {
             });
         }
 
+        // Validate phone format (10 digits)
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(phone)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid 10-digit phone number'
+            });
+        }
+
         // Find user with BOTH email AND phone matching
         const user = await User.findOne({
             email: email.toLowerCase().trim(),
             contact: phone.trim()
         });
 
-        // Generic response - don't reveal if email or phone exists
-        if (!user) {
-            console.log(`⚠️ Forgot password attempt for non-matching email/phone: ${email}`);
+        // ✅ USER FOUND - Return reset token directly
+        if (user) {
+            // Generate reset token
+            const token = generateResetToken();
+            const tokenHash = hashToken(token);
+            const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+            // Store token hash
+            await PasswordResetToken.create({
+                userId: user._id,
+                tokenHash: tokenHash,
+                expiresAt: expiresAt
+            });
+
+            console.log(`✅ Account verified: ${user.email} (${user.registrationNo})`);
+
+            // Return token directly (for direct reset)
             return res.status(200).json({
                 success: true,
-                message: 'If your account is verified, a reset link will be sent.'
+                message: 'Account verified successfully!',
+                resetToken: token,
+                user: {
+                    name: user.name,
+                    email: user.email
+                }
             });
         }
 
-        // Generate reset token
-        const token = generateResetToken();
-        const tokenHash = hashToken(token);
-
-        // Set expiration (15 minutes)
-        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-
-        // Store token hash
-        await PasswordResetToken.create({
-            userId: user._id,
-            tokenHash: tokenHash,
-            expiresAt: expiresAt
-        });
-
-        console.log(`🔐 Password reset token generated for: ${user.email}`);
-
-        // In a production environment, send email here
-        // For now, we'll return the token via a secure method
-        // In production, you would email this token, not return it in response
-
-        // IMPORTANT: In production, send token via email
-        // For development/testing, we'll return it in the response
-        // Remove this in production!
-        const isDev = process.env.NODE_ENV !== 'production';
-        
-        res.status(200).json({
-            success: true,
-            message: 'If your account is verified, a reset link will be sent.',
-            // DEV ONLY - remove in production
-            ...(isDev && { resetToken: token })
+        // User not found
+        return res.status(404).json({
+            success: false,
+            message: 'No account found with this email and phone number. Please check your details.'
         });
 
     } catch (error) {
         console.error('❌ Verify account error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error. Please try again later.'
+        });
+    }
+};
+
+// ==========================================
+// DIRECT RESET (No Token Needed - Production)
+// ==========================================
+const directReset = async (req, res) => {
+    try {
+        const { email, phone, newPassword } = req.body;
+
+        // Validate input
+        if (!email || !phone || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        // Validate password strength
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters'
+            });
+        }
+
+        // Find user
+        const user = await User.findOne({
+            email: email.toLowerCase().trim(),
+            contact: phone.trim()
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Account not found. Please verify your details.'
+            });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update password
+        user.passwordHash = hashedPassword;
+        await user.save();
+
+        // Delete any existing tokens
+        await PasswordResetToken.deleteMany({ userId: user._id });
+
+        console.log(`✅ Password reset successful for: ${user.email}`);
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset successful! You can now login.'
+        });
+
+    } catch (error) {
+        console.error('❌ Direct reset error:', error);
         res.status(500).json({
             success: false,
             message: 'Server error. Please try again later.'
@@ -123,7 +188,7 @@ const validateToken = async (req, res) => {
             });
         }
 
-        // Token is valid - return user info (safe to show)
+        // Token is valid - return user info
         res.status(200).json({
             success: true,
             message: 'Token is valid',
@@ -143,7 +208,7 @@ const validateToken = async (req, res) => {
 };
 
 // ==========================================
-// STEP 3: Reset Password
+// STEP 3: Reset Password (With Token)
 // ==========================================
 const resetPassword = async (req, res) => {
     try {
@@ -165,7 +230,7 @@ const resetPassword = async (req, res) => {
             });
         }
 
-        // Validate password strength (same as registration)
+        // Validate password strength
         if (newPassword.length < 6) {
             return res.status(400).json({
                 success: false,
@@ -213,7 +278,7 @@ const resetPassword = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Password reset successful! You can now login with your new password.'
+            message: 'Password reset successful! You can now login.'
         });
 
     } catch (error) {
@@ -225,12 +290,9 @@ const resetPassword = async (req, res) => {
     }
 };
 
-// ==========================================
-// Rate Limiting Wrappers (use with express-rate-limit)
-// ==========================================
-
 module.exports = {
     verifyAccount,
+    directReset,
     validateToken,
     resetPassword
 };
