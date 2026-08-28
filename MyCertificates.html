@@ -165,14 +165,22 @@
         const container = document.getElementById('certContainer');
         const token = localStorage.getItem('stcc_token');
         
+        // ✅ USE PRODUCTION API URL
+        const API_URL = window.API_URL || 'https://stcc-nerist.onrender.com/api';
+        
         if (!token) {
             window.location.href = 'login.html';
             return;
         }
 
         try {
-            const res = await fetch('http://localhost:5000/api/certificates/my', {
-                headers: { 'Authorization': `Bearer ${token}` }
+            console.log('📡 Fetching certificates from:', `${API_URL}/certificates/my`);
+            
+            const res = await fetch(`${API_URL}/certificates/my`, {
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
             
             const data = await res.json();
@@ -204,6 +212,7 @@
                 });
             }
         } catch (error) {
+            console.error('❌ Error loading certificates:', error);
             container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error loading certificates: ' + error.message + '</p></div>';
         }
     });
@@ -211,42 +220,71 @@
     // View Certificate (Open in new tab)
     async function viewCertificate(certId) {
         const token = localStorage.getItem('stcc_token');
-        const response = await fetch(`http://localhost:5000/api/certificates/${certId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
+        const API_URL = window.API_URL || 'https://stcc-nerist.onrender.com/api';
         
-        if (data.success) {
-            // Open PDF URL in new tab (but it needs token, so we use blob)
-            const pdfResponse = await fetch(`http://localhost:5000/api/certificates/${certId}/download`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+        try {
+            const response = await fetch(`${API_URL}/certificates/${certId}`, {
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
-            const blob = await pdfResponse.blob();
-            const url = window.URL.createObjectURL(blob);
-            window.open(url, '_blank');
-        } else {
-            alert(data.message);
+            const data = await response.json();
+            
+            if (data.success) {
+                // Download and open PDF
+                const pdfResponse = await fetch(`${API_URL}/certificates/${certId}/download`, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (pdfResponse.ok) {
+                    const blob = await pdfResponse.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                } else {
+                    alert('Failed to load certificate. Please try again.');
+                }
+            } else {
+                alert(data.message || 'Certificate not found');
+            }
+        } catch (error) {
+            console.error('❌ View certificate error:', error);
+            alert('Failed to view certificate. Please try again.');
         }
     }
 
     // Download Certificate
     async function downloadCertificate(certId) {
         const token = localStorage.getItem('stcc_token');
-        const response = await fetch(`http://localhost:5000/api/certificates/${certId}/download`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const API_URL = window.API_URL || 'https://stcc-nerist.onrender.com/api';
         
-        if (response.ok) {
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `STCC-Certificate-${certId}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        } else {
+        try {
+            const response = await fetch(`${API_URL}/certificates/${certId}/download`, {
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `STCC-Certificate-${certId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || 'Download failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('❌ Download error:', error);
             alert('Download failed. Please try again.');
         }
     }
