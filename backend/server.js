@@ -10,31 +10,44 @@ const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const certificateRoutes = require('./routes/certificateRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
 
+// Load environment variables
 dotenv.config();
 
 const app = express();
 
 // ============================================================
-// ✅ FIXED CORS - Allow ALL origins during development
+// CONFIGURATION
 // ============================================================
-// For development, allow all origins
-// For production, you can restrict this later
+const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
+const CLIENT_ROOT = path.join(__dirname, '..');
+
+// Allowed origins for production
+const allowedOrigins = [
+    'https://stcc-website.onrender.com',
+    'https://your-app-name.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5000'
+];
+
+// ============================================================
+// CORS CONFIGURATION
+// ============================================================
 app.use(cors({
     origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps, curl)
-        if (!origin) return callback(null, true);
-        
-        // Allow ALL origins during development
-        if (process.env.NODE_ENV !== 'production') {
+        // Allow requests with no origin (like mobile apps, curl, Postman)
+        if (!origin) {
             return callback(null, true);
         }
         
-        // For production, check against allowed origins
-        const allowedOrigins = [
-            'https://stcc-website.onrender.com',
-            'https://your-app-name.onrender.com'
-        ];
+        // Allow all origins in development
+        if (!isProduction) {
+            return callback(null, true);
+        }
         
+        // In production, only allow specific origins
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
@@ -44,20 +57,31 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With', 'Origin']
+    allowedHeaders: [
+        'Content-Type', 
+        'Authorization', 
+        'Accept', 
+        'X-Requested-With',
+        'Origin',
+        'Access-Control-Request-Method',
+        'Access-Control-Request-Headers'
+    ]
 }));
 
-// ✅ Handle ALL preflight requests explicitly
+// ============================================================
+// GLOBAL CORS MIDDLEWARE (Handles ALL preflight requests)
+// ============================================================
 app.use((req, res, next) => {
     // Set CORS headers for every request
     res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Origin');
     res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400'); // 24 hours cache for preflight
     
     // Handle preflight OPTIONS requests
     if (req.method === 'OPTIONS') {
-        console.log(`📡 OPTIONS preflight for: ${req.url} from ${req.headers.origin}`);
+        console.log(`📡 OPTIONS preflight: ${req.url} from ${req.headers.origin || 'no-origin'}`);
         return res.status(204).end();
     }
     
@@ -70,7 +94,9 @@ app.use((req, res, next) => {
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginEmbedderPolicy: false,
-    contentSecurityPolicy: false
+    crossOriginOpenerPolicy: false,
+    contentSecurityPolicy: false,
+    referrerPolicy: { policy: 'no-referrer' }
 }));
 
 // ============================================================
@@ -83,39 +109,102 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // REQUEST LOGGER
 // ============================================================
 app.use((req, res, next) => {
-    console.log(`📝 ${req.method} ${req.url} from ${req.headers.origin || 'no-origin'}`);
+    const start = Date.now();
+    
+    // Log after response is sent
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`📝 ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms) from ${req.headers.origin || 'no-origin'}`);
+    });
+    
     next();
 });
 
 // ============================================================
-// SERVE STATIC FILES
+// RATE LIMITING
 // ============================================================
-const CLIENT_ROOT = path.join(__dirname, '..');
-app.use(express.static(CLIENT_ROOT));
+const rateLimit = require('express-rate-limit');
 
-// Routes for all frontend pages
+// General API rate limiter
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100,
+    message: {
+        success: false,
+        message: 'Too many requests, please try again later'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Auth rate limiter (stricter)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10,
+    message: {
+        success: false,
+        message: 'Too many auth attempts, please try again later'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Apply rate limiting to auth routes
+app.use('/api/auth', authLimiter);
+
+// ============================================================
+// STATIC FILE SERVING
+// ============================================================
+// Serve static files from client root
+app.use(express.static(CLIENT_ROOT, {
+    maxAge: '1h', // Cache static files for 1 hour
+    etag: true,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            // Don't cache HTML files
+            res.setHeader('Cache-Control', 'no-cache');
+        } else if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
+            // Cache JS and CSS files
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+        }
+    }
+}));
+
+// ============================================================
+// FRONTEND ROUTES (All pages)
+// ============================================================
 const pages = {
     '/': 'index.html',
     '/index': 'index.html',
     '/index.html': 'index.html',
+    
     '/login': 'login.html',
     '/login.html': 'login.html',
+    
     '/forgot-password': 'forgot-password.html',
     '/forgot-password.html': 'forgot-password.html',
+    
     '/Events': 'Events.html',
     '/Events.html': 'Events.html',
+    
     '/leaderboard': 'leaderboard.html',
     '/leaderboard.html': 'leaderboard.html',
+    
     '/E-body': 'E-body.html',
     '/E-body.html': 'E-body.html',
+    
     '/Gallery': 'Gallery.html',
     '/Gallery.html': 'Gallery.html',
+    
     '/MyCertificates': 'MyCertificates.html',
     '/MyCertificates.html': 'MyCertificates.html',
+    
     '/ContactUs': 'ContactUs.html',
     '/ContactUs.html': 'ContactUs.html',
+    
     '/daily-challenge': 'daily-challenge.html',
     '/daily-challenge.html': 'daily-challenge.html',
+    
     '/test-challenge': 'test-challenge.html',
     '/test-challenge.html': 'test-challenge.html'
 };
@@ -132,26 +221,48 @@ Object.entries(pages).forEach(([route, file]) => {
 // ============================================================
 console.log('🔗 Registering API routes...');
 
+// Auth routes
 app.use('/api/auth', authRoutes);
 console.log('   ✅ /api/auth');
 
+// Challenge routes
 app.use('/api/challenges', challengeRoutes);
 console.log('   ✅ /api/challenges');
 
+// Leaderboard routes
 app.use('/api/leaderboard', leaderboardRoutes);
 console.log('   ✅ /api/leaderboard');
 
+// Certificate routes
 app.use('/api/certificates', certificateRoutes);
 console.log('   ✅ /api/certificates');
 
+// Password reset routes
 app.use('/api/password-reset', passwordResetRoutes);
 console.log('   ✅ /api/password-reset');
 
-// Contact form route
+// ============================================================
+// CONTACT FORM ROUTE
+// ============================================================
+const nodemailer = require('nodemailer');
+
+// Configure email transporter
+let transporter = null;
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+}
+
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, message } = req.body;
         
+        // Validate input
         if (!name || !email || !message) {
             return res.status(400).json({ 
                 success: false, 
@@ -159,17 +270,57 @@ app.post('/api/contact', async (req, res) => {
             });
         }
         
-        console.log('📧 Contact form submitted:', { name, email, message });
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid email address' 
+            });
+        }
+        
+        // Log contact submission
+        console.log('📧 Contact form submission:', {
+            name,
+            email,
+            message: message.substring(0, 100) + '...',
+            timestamp: new Date().toISOString()
+        });
+        
+        // Send email if transporter is configured
+        if (transporter) {
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: 'stcc.codingclub@gmail.com',
+                    subject: `STCC Contact Form: ${name}`,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+                            <h2 style="color: #00D084; border-bottom: 2px solid #00D084; padding-bottom: 10px;">STCC Contact Form</h2>
+                            <p><strong>Name:</strong> ${name}</p>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Message:</strong></p>
+                            <p style="background: #f5f5f5; padding: 10px; border-radius: 5px;">${message}</p>
+                        </div>
+                    `
+                });
+                console.log('📧 Email sent successfully');
+            } catch (emailError) {
+                console.error('📧 Email send error:', emailError.message);
+                // Don't fail the request if email fails - just log it
+            }
+        }
         
         res.json({ 
             success: true, 
             message: 'Message received! We\'ll get back to you soon.' 
         });
+        
     } catch (error) {
         console.error('Contact error:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Failed to send message' 
+            message: 'Failed to send message. Please try again.' 
         });
     }
 });
@@ -181,19 +332,37 @@ app.get('/health', (req, res) => {
     res.json({
         success: true,
         status: 'healthy',
+        environment: process.env.NODE_ENV || 'development',
         timestamp: new Date().toISOString(),
-        uptime: process.uptime()
+        uptime: process.uptime(),
+        memory: {
+            rss: Math.round(process.memoryUsage().rss / 1024 / 1024) + 'MB',
+            heapTotal: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB',
+            heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB'
+        }
     });
 });
 
 // ============================================================
-// 404 FOR API
+// VERIFY CERTIFICATE (Public page)
 // ============================================================
-app.use('/api/*', (req, res) => {
-    res.status(404).json({ 
-        success: false, 
-        message: 'API route not found' 
-    });
+app.get('/verify/:certificateId', (req, res) => {
+    res.sendFile(path.join(CLIENT_ROOT, 'index.html'));
+});
+
+// ============================================================
+// 404 HANDLER (For non-API routes)
+// ============================================================
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ 
+            success: false, 
+            message: 'API route not found: ' + req.method + ' ' + req.path 
+        });
+    }
+    
+    // For non-API routes, serve the index.html (SPA fallback)
+    res.sendFile(path.join(CLIENT_ROOT, 'index.html'));
 });
 
 // ============================================================
@@ -201,26 +370,89 @@ app.use('/api/*', (req, res) => {
 // ============================================================
 app.use((err, req, res, next) => {
     console.error('❌ Error:', err.message);
+    console.error('   Stack:', err.stack);
+    
     if (err.message === 'Not allowed by CORS') {
         return res.status(403).json({
             success: false,
             message: 'CORS not allowed for this origin'
         });
     }
+    
+    if (err.type === 'entity.too.large') {
+        return res.status(413).json({
+            success: false,
+            message: 'Request body too large'
+        });
+    }
+    
+    if (err.type === 'entity.parse.failed') {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid JSON body'
+        });
+    }
+    
     res.status(500).json({ 
         success: false, 
-        message: 'Internal server error: ' + err.message 
+        message: 'Internal server error',
+        error: isProduction ? 'An error occurred' : err.message
     });
 });
 
 // ============================================================
 // CONNECT TO MONGODB & START SERVER
 // ============================================================
-connectDB();
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log('='.repeat(60));
+            console.log('🚀 STCC Server Started Successfully!');
+            console.log('='.repeat(60));
+            console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+            console.log(`🔗 Server URL: http://localhost:${PORT}`);
+            console.log(`📊 Health Check: http://localhost:${PORT}/health`);
+            console.log('✅ CORS Enabled');
+            console.log('✅ Static Files Served');
+            console.log('✅ API Routes Registered');
+            console.log('='.repeat(60));
+        });
+    })
+    .catch(err => {
+        console.error('❌ MongoDB Connection Failed:', err.message);
+        console.error('   Please check your MONGODB_URI in .env file');
+        process.exit(1);
+    });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 STCC API running on port ${PORT}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log('✅ CORS enabled for ALL origins in development mode');
+// ============================================================
+// GRACEFUL SHUTDOWN
+// ============================================================
+process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received. Closing server...');
+    server.close(() => {
+        console.log('✅ Server closed.');
+        process.exit(0);
+    });
 });
+
+process.on('SIGINT', () => {
+    console.log('🛑 SIGINT received. Closing server...');
+    server.close(() => {
+        console.log('✅ Server closed.');
+        process.exit(0);
+    });
+});
+
+// ============================================================
+// UNHANDLED ERRORS
+// ============================================================
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    process.exit(1);
+});
+
+module.exports = app;
