@@ -16,7 +16,7 @@ dotenv.config();
 const app = express();
 
 // ============================================================
-// ✅ FIXED CORS - Allow ALL origins during development
+// CORS CONFIGURATION
 // ============================================================
 app.use(cors({
     origin: function(origin, callback) {
@@ -46,7 +46,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With', 'Origin']
 }));
 
-// ✅ Handle ALL preflight requests explicitly
+// Handle ALL preflight requests
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -129,6 +129,8 @@ Object.entries(pages).forEach(([route, file]) => {
 // ============================================================
 app.post('/api/seed-challenges', async (req, res) => {
     try {
+        console.log('🌱 Seeding challenges...');
+        
         const challenges = [
             {
                 dayNumber: 1,
@@ -310,7 +312,7 @@ app.post('/api/seed-challenges', async (req, res) => {
         // Insert new challenges
         const result = await DailyChallenge.insertMany(challenges);
         
-        console.log(`✅ Seeded ${result.length} challenges`);
+        console.log(`✅ Seeded ${result.length} challenges successfully`);
         
         res.json({ 
             success: true, 
