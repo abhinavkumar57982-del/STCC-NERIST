@@ -476,13 +476,15 @@
     </div>
 
     <!-- Scripts -->
+     <script src="js/config.js"></script> 
     <script src="js/particles.js"></script>
     <script>
     (function() {
         'use strict';
 
         // ===== AUTH SYSTEM =====
-        const API_URL = 'http://localhost:5000/api';
+        // ===== AUTH SYSTEM =====
+        const API_URL = window.API_URL || 'http://localhost:5000/api';
         const REDIRECT_URL = 'index.html';
 
         const toast = document.getElementById('toast');
