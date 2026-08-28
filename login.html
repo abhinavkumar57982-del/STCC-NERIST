@@ -475,14 +475,13 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-     <script src="js/config.js"></script> 
+    <!-- ✅ Scripts - CORRECT ORDER -->
+    <script src="js/config.js"></script>
     <script src="js/particles.js"></script>
     <script>
     (function() {
         'use strict';
 
-        // ===== AUTH SYSTEM =====
         // ===== AUTH SYSTEM =====
         const API_URL = window.API_URL || 'http://localhost:5000/api';
         const REDIRECT_URL = 'index.html';
@@ -559,7 +558,7 @@
 
         forgotPassword.addEventListener('click', (e) => {
             e.preventDefault();
-             window.location.href = 'forgot-password.html';
+            window.location.href = 'forgot-password.html';
         });
 
         // ===== LOGIN =====
@@ -582,7 +581,8 @@
             setLoading(loginBtn, true);
 
             try {
-                console.log('Sending login request for:', registrationNo);
+                console.log('📡 Sending login request to:', `${API_URL}/auth/login`);
+                console.log('📤 Registration No:', registrationNo);
 
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
@@ -594,7 +594,7 @@
                 });
 
                 const data = await res.json();
-                console.log('Login response:', data);
+                console.log('📥 Login response:', data);
 
                 if (!data.success) {
                     throw new Error(data.message || 'Login failed');
@@ -612,7 +612,7 @@
                 }, 800);
 
             } catch (error) {
-                console.error('Login error:', error);
+                console.error('❌ Login error:', error);
                 showToast(error.message || '❌ Login failed. Please try again.', true);
                 setLoading(loginBtn, false);
             }
@@ -667,7 +667,9 @@
             setLoading(signupBtn, true);
 
             try {
-                console.log('Sending signup request for:', registrationNo);
+                console.log('📡 Sending signup request to:', `${API_URL}/auth/register`);
+                console.log('📤 Registration No:', registrationNo);
+                console.log('📤 Email:', email);
 
                 const res = await fetch(`${API_URL}/auth/register`, {
                     method: 'POST',
@@ -685,7 +687,7 @@
                 });
 
                 const data = await res.json();
-                console.log('Signup response:', data);
+                console.log('📥 Signup response:', data);
 
                 if (!data.success) {
                     throw new Error(data.message || 'Registration failed');
@@ -703,7 +705,7 @@
                 }, 800);
 
             } catch (error) {
-                console.error('Signup error:', error);
+                console.error('❌ Signup error:', error);
                 showToast(error.message || '❌ Registration failed. Please try again.', true);
                 setLoading(signupBtn, false);
             }
@@ -714,7 +716,7 @@
             window.location.href = REDIRECT_URL;
         }
 
-        console.log('🚀 STCC Auth System Ready (Registration Number based)');
+        console.log('🚀 STCC Auth System Ready');
         console.log('📡 API URL:', API_URL);
 
     })();
