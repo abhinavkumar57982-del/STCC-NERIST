@@ -29,9 +29,9 @@ const eventsData = [
         //     { position: "🥉 3rd", name: "Team Innovators - Lakshya Kushwaha, Kingshuk Haldar" }
         // ],
         gallery: [
-            "images/events/gallery/hackathon1.jpg",
-            "images/events/gallery/hackathon2.jpg",
-            "images/events/gallery/hackathon3.jpg"
+            "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2,f_auto,g_center,h_200,q_auto:good,w_200/v1/gcs/platform-data-goog/chapter_photos/123_biporE2.jpeg",
+            "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2,f_auto,g_center,h_200,q_auto:good,w_200/v1/gcs/platform-data-goog/chapter_photos/111_BbxF0Ys.jpeg",
+            
         ],
         certificatesAvailable: false
     },
@@ -45,7 +45,7 @@ const eventsData = [
         endTime: "19:00",
         venue: "CSE seminar hall, NERIST ",
         description: "GDG on Campus NERIST and the Student Tech & Coding Club (STCC) present Google TechSprint, an open innovation hackathon. Whether you're a solo coder or part of a team of 1–4, this is your stage to innovate!",
-        image: "images/TechSprint.png",
+        image: "images/techsprint.png",
         registrationOpen: false,
         registrationUrl: "#",
         participants: 120,
@@ -83,8 +83,8 @@ const eventsData = [
         highlights: [],
         winners: [],
         gallery: [
-            "images/events/gallery/bootcamp1.jpg",
-            "images/events/gallery/bootcamp2.jpg"
+            "images/felicitation.png",
+            // "images/events/gallery/bootcamp2.jpg"
         ],
         certificatesAvailable: false
     },
