@@ -3,6 +3,7 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const {
     verifyAccount,
+    directReset,
     validateToken,
     resetPassword
 } = require('../controllers/passwordResetController');
@@ -11,13 +12,25 @@ const {
 // Rate Limiters
 // ==========================================
 
-// Verify account limiter: 3 attempts per 15 minutes
+// Verify account limiter: 5 attempts per 15 minutes
 const verifyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5,
+    message: {
+        success: false,
+        message: 'Too many verification attempts. Please try again after 15 minutes.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Direct reset limiter: 3 attempts per 15 minutes
+const directResetLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 3,
     message: {
         success: false,
-        message: 'Too many verification attempts. Please try again after 15 minutes.'
+        message: 'Too many reset attempts. Please try again after 15 minutes.'
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -39,13 +52,16 @@ const resetLimiter = rateLimit({
 // Routes
 // ==========================================
 
-// POST: Verify account (email + phone)
+// POST: Verify account (email + phone) → Returns reset token directly
 router.post('/verify', verifyLimiter, verifyAccount);
+
+// POST: Direct reset (email + phone + new password) → No token needed
+router.post('/direct-reset', directResetLimiter, directReset);
 
 // GET: Validate reset token
 router.get('/validate/:token', validateToken);
 
-// POST: Reset password
+// POST: Reset password with token
 router.post('/reset', resetLimiter, resetPassword);
 
 module.exports = router;
